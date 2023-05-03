@@ -14,14 +14,16 @@ import time
 # import webbrowser
 # webbrowser is useful if you want to open the URLs instead of writing to Excel
 
-dataorig = pd.read_excel('N:\Python\ScriptRetrievalList.xlsx', usecols='D,B,W')
-# open the Excel file and use article name, DOI, and author columns
+# make sure the request export is saved to N:\ILL\Article-Downloads\LendingQueues.xlsx
+
+dataorig = pd.read_excel('N:\ILL\Article-Downloads\LendingQueues.xlsx', usecols='A,D,G')
+# open the Excel file and use article name, TN, and journal columns
 dforig = pd.DataFrame(dataorig)
 # create a dataframe of imported data
 dforig['index'] = dforig.index
 # assign an index to the data
 
-data = pd.read_excel('N:\Python\ScriptRetrievalList.xlsx', usecols='D')
+data = pd.read_excel('N:\ILL\Article-Downloads\LendingQueues.xlsx', usecols='A')
 # open Excel file and choose article name column
 df = pd.DataFrame(data)
 # turn the column into a dataframe
@@ -69,7 +71,7 @@ df2 = df2.reset_index()
 # change the index of df2 to match dforig MAY NOT NEED
 dfresult = pd.concat([dforig, df2], axis=1).reindex(dforig.index)
 # add the url column to the original data from dforig
-with pd.ExcelWriter('N:\Python\ScriptRetrievalList.xlsx', mode='a', if_sheet_exists='new') as writer:  
+with pd.ExcelWriter('N:\ILL\Article-Downloads\LendingQueues.xlsx', mode='a', if_sheet_exists='new') as writer:  
     dfresult.to_excel(writer, sheet_name='Sheet2')
     # write the final dataframe to a new sheet in an Excel file
    
