@@ -11,6 +11,7 @@ import pandas as pd
 import requests
 import json
 import time
+from scholarly import scholarly
 # import webbrowser
 # webbrowser is useful if you want to open the URLs instead of writing to Excel
 
@@ -25,9 +26,9 @@ dforig['index'] = dforig.index
 
 data = pd.read_excel('N:\ILL\Article-Downloads\LendingQueues.xlsx', usecols='A')
 # open Excel file and choose article name column
-df = pd.DataFrame(data)
+df0 = pd.DataFrame(data)
 # turn the column into a dataframe
-df = df.replace(' ','+', regex=True)
+df = df0.replace(' ','+', regex=True)
 # change all spaces to +
 df2 = pd.DataFrame({})
 # set up an empty dataframe to hold the pmids later
@@ -46,14 +47,20 @@ for i in range(0, len(df)):
     df1 = pd.DataFrame(pmid)
     # add the pmid list to a dataframe
     if len(df1.index)>1:
-        url = f'https://pubmed.ncbi.nlm.nih.gov/?term={title}'
+        # url = f'https://pubmed.ncbi.nlm.nih.gov/?term={title}'
         # if there is more than one record, generate a URL for a pubmed search of the title
-        df1 = pd.DataFrame({url})
+        title2 = df0.iloc[i, -1]
+        search = scholarly.search_pubs(title2)
+        print(['pub_url'])
+        # df1 = pd.DataFrame({url})
         # make a dataframe for the url
     elif df1.empty:
-        url = f'https://pubmed.ncbi.nlm.nih.gov/?term={title}'
+        # url = f'https://pubmed.ncbi.nlm.nih.gov/?term={title}'
         # if there are no records, generate a URL for a pubmed search of the title
-        df1 = pd.DataFrame({url})
+        title2 = df0.iloc[i, -1]
+        search = scholarly.search_pubs(title2)
+        print(['pub_url'])
+        # df1 = pd.DataFrame({url})
          # make a dataframe with the url
     else:
         pmid2 = df1.iloc[0, -1]
