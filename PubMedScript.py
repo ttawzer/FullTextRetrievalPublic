@@ -14,7 +14,7 @@ import time
 # import webbrowser
 # webbrowser is useful if you want to open the URLs instead of writing to Excel
 
-dataorig = pd.read_excel('N:\Python\ScriptRetrievalList.xlsx', usecols='D,B,W')
+dataorig = pd.read_excel('N:\Python\ScriptRetrievalList.xlsx', usecols='B,C,D,E,F,G,H,I,J,K,L')
 # open the Excel file and use article name, DOI, and author columns
 dforig = pd.DataFrame(dataorig)
 # create a dataframe of imported data
@@ -44,12 +44,12 @@ for i in range(0, len(df)):
     df1 = pd.DataFrame(pmid)
     # add the pmid list to a dataframe
     if len(df1.index)>1:
-        url = f'https://pubmed.ncbi.nlm.nih.gov/?term={title}'
+        url = f'https://scholar.google.com/scholar?q={title}&ie=UTF-8&oe=UTF-8&hl=en&btnG=Search'
         # if there is more than one record, generate a URL for a pubmed search of the title
         df1 = pd.DataFrame({url})
         # make a dataframe for the url
     elif df1.empty:
-        url = f'https://pubmed.ncbi.nlm.nih.gov/?term={title}'
+        url = f'https://scholar.google.com/scholar?q={title}&ie=UTF-8&oe=UTF-8&hl=en&btnG=Search'
         # if there are no records, generate a URL for a pubmed search of the title
         df1 = pd.DataFrame({url})
          # make a dataframe with the url
