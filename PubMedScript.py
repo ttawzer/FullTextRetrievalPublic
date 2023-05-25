@@ -14,7 +14,7 @@ import time
 # import webbrowser
 # webbrowser is useful if you want to open the URLs instead of writing to Excel
 
-dataorig = pd.read_excel('N:\Python\ScriptRetrievalList.xlsx', usecols='B,C,D,E,F,G,H,I,J,K,L')
+dataorig = pd.read_excel('N:\Python\ScriptRetrievalList.xlsx', usecols='A,B,C,D,E,F,G,H,I,J,K,L')
 # open the Excel file and use article name, DOI, and author columns
 dforig = pd.DataFrame(dataorig)
 # create a dataframe of imported data
