@@ -22,9 +22,9 @@ dforig = pd.DataFrame(dataorig)
 dforig['index'] = dforig.index
 # assign an index to the data
 
-data = pd.read_excel('N:\Python\ScriptRetrievalList.xlsx', usecols='E')
+df = pd.read_excel('N:\Python\ScriptRetrievalList.xlsx', usecols='E')
 # open Excel file and choose article name column
-df = pd.DataFrame(data)
+# df = pd.DataFrame(data)
 # turn the column into a dataframe
 df = df.replace(' ','+', regex=True)
 # change all spaces to +
@@ -67,7 +67,7 @@ for i in range(0, len(df)):
 df2 = df2.reset_index()
 # reset the index for df2
 # df2 = df2.reindex(dforig.index)
-# change the index of df2 to match dforig MAY NOT NEED
+# change the index of df2 to match dforig 
 dfresult = pd.concat([dforig, df2], axis=1).reindex(dforig.index)
 # add the url column to the original data from dforig
 with pd.ExcelWriter('N:\Python\ScriptRetrievalList.xlsx', mode='a', if_sheet_exists='new') as writer:  
