@@ -14,18 +14,14 @@ import time
 # import webbrowser
 # webbrowser is useful if you want to open the URLs instead of writing to Excel
 
-dataorig = pd.read_excel('N:\Python\ScriptRetrievalList.xlsx', usecols='B,C,D,E,F,G,H,I,J,K,L,M')
-# open the Excel file choose columns
-# column choice may need to be changed based on the spreadsheet setup
-dforig = pd.DataFrame(dataorig)
-# create a dataframe of imported data
+dforig = pd.read_excel('N:\Python\ScriptRetrievalList.xlsx', usecols='B:M', header=None)
+# open the Excel file and create a dataframe with columns desired for the final output
+# column choice may need to be changed based on the spreadsheet export from EndNote
 dforig['index'] = dforig.index
 # assign an index to the data
-
-df = pd.read_excel('N:\Python\ScriptRetrievalList.xlsx', usecols='E')
-# open Excel file and choose article name column
-# df = pd.DataFrame(data)
-# turn the column into a dataframe
+df = pd.read_excel('N:\Python\ScriptRetrievalList.xlsx', usecols='E', header=None)
+# open Excel file and create a dataframe from the article name column
+# column choice may need to be changed based on the spreadsheet export from EndNote
 df = df.replace(' ','+', regex=True)
 # change all spaces to +
 df2 = pd.DataFrame({})
@@ -46,12 +42,13 @@ for i in range(0, len(df)):
     # add the pmid list to a dataframe
     if len(df1.index)>1:
         url = f'https://scholar.google.com/scholar?q={title}&ie=UTF-8&oe=UTF-8&hl=en&btnG=Search'
-        # if there is more than one record, generate a URL for a pubmed search of the title
+        # if there is more than one record, generate a URL for a Google Scholar title search
+        # to use PubMed title search instead, use: f'https://pubmed.ncbi.nlm.nih.gov/?term={title}'
         df1 = pd.DataFrame({url})
         # make a dataframe for the url
     elif df1.empty:
         url = f'https://scholar.google.com/scholar?q={title}&ie=UTF-8&oe=UTF-8&hl=en&btnG=Search'
-        # if there are no records, generate a URL for a pubmed search of the title
+        # if there are NO results, generate a URL for a Google Scholar title search
         df1 = pd.DataFrame({url})
          # make a dataframe with the url
     else:
@@ -61,16 +58,14 @@ for i in range(0, len(df)):
         df1 = pd.DataFrame({url})
         # create a Serials Solutions search url for the pmid and put it in a dataframe
     df2 = pd.concat([df2, df1])
-    # add the current record's dataframe to the full list
+    # add the current record's dataframe as a row in the full list
     time.sleep(.5)
-    # wait a half second before moving to the next row
+    # wait a half second before moving to the next row to accommodate eutil limitation
 df2 = df2.reset_index()
 # reset the index for df2
-# df2 = df2.reindex(dforig.index)
-# change the index of df2 to match dforig 
 dfresult = pd.concat([dforig, df2], axis=1).reindex(dforig.index)
-# add the url column to the original data from dforig
+# append the url column to the larger data extract 
 with pd.ExcelWriter('N:\Python\ScriptRetrievalList.xlsx', mode='a', if_sheet_exists='new') as writer:  
     dfresult.to_excel(writer, sheet_name='Sheet2')
     # write the final dataframe to a new sheet in an Excel file
-   
+    
