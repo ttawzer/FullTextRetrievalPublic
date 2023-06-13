@@ -30,7 +30,7 @@ for i in range(0, len(df)):
 # for every item, starting at index 0 and ending and the last cell, do the following   
     title = df.iloc[i, -1]
 # assign the title in the current row to a variable
-    url = f'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&retmode=json&term={title}&field=title'
+    url = f'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&retmode=json&term={title}&field=title&api_key=<NCBI API KEY>'
 # append the title into the esearch API string
     response = requests.get(url)
     # run the API and output the result as JSON using requests package
@@ -59,7 +59,7 @@ for i in range(0, len(df)):
         # create a Serials Solutions search url for the pmid and put it in a dataframe
     df2 = pd.concat([df2, df1])
     # add the current record's dataframe as a row in the full list
-    time.sleep(.5)
+    time.sleep(.15)
     # wait a half second before moving to the next row to accommodate eutil limitation
 df2 = df2.reset_index()
 # reset the index for df2

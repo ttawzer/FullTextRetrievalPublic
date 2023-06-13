@@ -21,5 +21,5 @@ The following Python packages need to be installed:
 - [pandas](https://pandas.pydata.org/docs/getting_started/install.html)
 - [requests](https://pypi.org/project/requests/)
 
-To open the final URLs, install the "Open Multiple URLs" browser addon (available for both [Chrome](https://chrome.google.com/webstore/detail/open-multiple-urls/oifijhaokejakekmnjmphonojcfkpbbh) and [Firefox](https://addons.mozilla.org/de/firefox/addon/open-multiple-urls/). Select the "Do not load tabs until selected" box to minimize system strain. If there are a large number of citations in the file, open the URLs in batches of 20 or 25. 
+To open the final URLs, install the "Open Multiple URLs" browser addon (available for both [Chrome](https://chrome.google.com/webstore/detail/open-multiple-urls/oifijhaokejakekmnjmphonojcfkpbbh) and [Firefox](https://addons.mozilla.org/de/firefox/addon/open-multiple-urls/).) Select the "Do not load tabs until selected" box to minimize system strain. If there are a large number of citations in the file, open the URLs in batches of 20 or 25. 
 
