@@ -17,12 +17,12 @@ import time
 
 # make sure the request export is saved to N:\ILL\Article-Downloads\LendingQueues.xlsx
 
-dforig = pd.read_excel('N:\ILL\Article-Downloads\LendingQueues.xlsx', usecols='A,D,G', header=None)
+dforig = pd.read_excel('N:\ILL\Article-Downloads\LendingQueues.xlsx', usecols='A,D,G')
 # open the Excel file and use article name, TN, and journal columns
 dforig['index'] = dforig.index
 # assign an index to the data
 
-df = pd.read_excel('N:\ILL\Article-Downloads\LendingQueues.xlsx', usecols='A', header=None)
+df = pd.read_excel('N:\ILL\Article-Downloads\LendingQueues.xlsx', usecols='A')
 # open Excel file and choose article name column
 df = df.replace(' ','+', regex=True)
 # change all spaces to +
@@ -32,7 +32,7 @@ for i in range(0, len(df)):
 # for every item, starting at index 0 and ending and the last cell, do the following   
     title = df.iloc[i, -1]
 # assign the title in the current row to a variable
-    url = f'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&retmode=json&term={title}&field=title'
+    url = f'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&retmode=json&term={title}&field=title&api_key=<NCBI API KEY>'
 # append the title into the esearch API string
     response = requests.get(url)
     # run the API and output the result as JSON using requests package
@@ -60,7 +60,7 @@ for i in range(0, len(df)):
         # create a Serials Solutions search url for the pmid and put it in a dataframe
     df2 = pd.concat([df2, df1])
     # add the current record's dataframe to the full list
-    time.sleep(.5)
+    time.sleep(.1)
     # wait a half second before moving to the next row
 df2 = df2.reset_index()
 # reset the index for df2
@@ -69,4 +69,5 @@ dfresult = pd.concat([dforig, df2], axis=1).reindex(dforig.index)
 with pd.ExcelWriter('N:\ILL\Article-Downloads\LendingQueues.xlsx', mode='a', if_sheet_exists='new') as writer:  
     dfresult.to_excel(writer, sheet_name='Sheet2')
     # write the final dataframe to a new sheet in an Excel file
+print ("Done")
    
