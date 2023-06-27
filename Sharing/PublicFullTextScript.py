@@ -2,8 +2,10 @@
 """
 Created on Tue Apr 11 09:28:32 2023
 
-@author: ttawzer
+Developed by Tiffany Tawzer and Christopher Beger
 Copyright 2023, Loyola University Chicago, distributed under the GNU General Public License version 3. The license text is available at https://www.gnu.org/licenses/ 
+
+NCBI E-utilities API is subject to the NCBI Disclaimer and Copyright Notice https://www.ncbi.nlm.nih.gov/About/disclaimer.html
 """
 
 # import numpy
@@ -12,17 +14,14 @@ import pandas as pd
 import requests
 import json
 import time
-# import webbrowser
-# webbrowser is useful if you want to open the URLs instead of writing to Excel
+
 
 dforig = pd.read_excel('N:\Python\ScriptRetrievalList.xlsx', usecols='B:M', header=None)
 # open the Excel file and create a dataframe with columns desired for the final output
-# if the Excel file has headers, remove 'header=None'
-dforig['index'] = dforig.index
-# assign an index to the data
-df = pd.read_excel('N:\Python\ScriptRetrievalList.xlsx', usecols='E', header=None)
-# open Excel file and create a dataframe from the article name column
-# if the Excel file has headers, remove 'header=None'
+# if the Excel file has headers you can remove 'header=None'
+df = pd.read_excel('N:\Python\ScriptRetrievalList.xlsx', usecols='D', header=None)
+# open Excel file and create a dataframe from the article name column - see README for alternate option
+# if the Excel file has headers you can remove 'header=None'
 df = df.replace(' ','+', regex=True)
 # change all spaces to +
 df2 = pd.DataFrame({})
@@ -61,10 +60,10 @@ for i in range(0, len(df)):
     df2 = pd.concat([df2, df1])
     # add the current record's dataframe as a row in the full list
     time.sleep(.4)
-    # wait a before moving to the next row to accommodate e-utilities limitation
+    # wait a before moving to the next row to accommodate e-utilities limitation - see README for details
 df2 = df2.reset_index()
 # reset the index for df2
-dfresult = pd.concat([dforig, df2], axis=1).reindex(dforig.index)
+dfresult = pd.concat([dforig, df2], axis=1)
 # append the url column to the larger data extract 
 with pd.ExcelWriter('N:\Python\ScriptRetrievalList.xlsx', mode='a', if_sheet_exists='new') as writer:  
     dfresult.to_excel(writer, sheet_name='Sheet2')
