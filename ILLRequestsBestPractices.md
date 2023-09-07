@@ -15,7 +15,7 @@ To bulk-download the fulfilled ILLiad requests, open the exported Excel file and
 ```
 =CONCATENATE("https://your-illiad-server-address/illiad/illiad.dll?Action=10&Form=75&Value=",A1)
 ```
-In this formula, the A column represents the list of TNs from the exported custom search. Once you’ve created the URLs, you may open them in bulk using the Open Multiple URLs extension. The article PDFs should download instantly, and by default their downloaded name should reflect the request TN.
+In this formula, the A column represents the list of TNs from the exported custom search. Once you’ve created the URLs, you may open them in bulk using the Open Multiple URLs extension. For this step, uncheck the extension's "Do not load tabs until selected" option. Depending on your browser's download settings, the article PDFs should download instantly. By default their downloaded name should reflect the request TN.
 
 ## Bulk Renaming Articles
 Once you've successfully downloaded the ILL articles, you’ll need to rename them from their TN # to their PDF ID. You can do this efficiently by creating a small batch script that will bulk rename the files. To get started, place the PDFs obtained via ILL in a new folder (the location of this folder is not important). Then, create a new column in the exported Excel sheet and add the following formula to generate the rename commands that will bulk-rename the PDFs on our behalf:
