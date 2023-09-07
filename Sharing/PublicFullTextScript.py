@@ -59,6 +59,8 @@ for i in range(0, len(df)):
         # create a Serials Solutions search url for the pmid and put it in a dataframe
     df2 = pd.concat([df2, df1])
     # add the current record's dataframe as a row in the full list
+    response.close()
+    # close the request connection
     time.sleep(.4)
     # wait a before moving to the next row to accommodate e-utilities limitation - see README for details
 df2 = df2.reset_index()
