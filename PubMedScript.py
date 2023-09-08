@@ -20,20 +20,25 @@ import time
 dforig = pd.read_excel('N:\Python\ScriptRetrievalList.xlsx', usecols='B:M', header=None)
 # open the Excel file and create a dataframe with columns desired for the final output
 # column choice may need to be changed based on the spreadsheet export from EndNote
-df = pd.read_excel('N:\Python\ScriptRetrievalList.xlsx', usecols='E', header=None)
+df = pd.read_excel('N:\Python\ScriptRetrievalList.xlsx', usecols='D', header=None)
 # open Excel file and create a dataframe from the article name column
 # column choice may need to be changed based on the spreadsheet export from EndNote
-df = df.replace(' ','+', regex=True)
+#df = df.replace(' ','+', regex=True)
 # change all spaces to +
 df2 = pd.DataFrame({})
 # set up an empty dataframe to hold the pmids later
 for i in range(0, len(df)):
 # for every item, starting at index 0 and ending and the last cell, do the following   
     title = df.iloc[i, -1]
+    title = str(title)
+    title2 = title.replace(' ','+')
 # assign the title in the current row to a variable
-    url = f'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&retmode=json&term={title}&field=title&api_key=<NCBI API KEY>'
+ #   url = f'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&retmode=json&term={title}&field=title&api_key=<NCBI API KEY>'
 # append the title into the esearch API string
-    response = requests.get(url)
+    payload = {'db': 'pubmed', 'retmode':'json', 'field': 'title', 'term': title, 'api_key': '<NCBI API KEY>'}
+    response = requests.get('https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?', params=payload)
+    
+    # response = requests.get(url)
     # run the API and output the result as JSON using requests package
     record = response.json()
     # get the data from the JSON file as a dictionary
@@ -42,13 +47,13 @@ for i in range(0, len(df)):
     df1 = pd.DataFrame(pmid)
     # add the pmid list to a dataframe
     if len(df1.index)>1:
-        url = f'https://scholar.google.com/scholar?q={title}&ie=UTF-8&oe=UTF-8&hl=en&btnG=Search'
+        url = f'https://scholar.google.com/scholar?q={title2}&ie=UTF-8&oe=UTF-8&hl=en&btnG=Search'
         # if there is more than one record, generate a URL for a Google Scholar title search
         # to use PubMed title search instead, use: f'https://pubmed.ncbi.nlm.nih.gov/?term={title}'
         df1 = pd.DataFrame({url})
         # make a dataframe for the url
     elif df1.empty:
-        url = f'https://scholar.google.com/scholar?q={title}&ie=UTF-8&oe=UTF-8&hl=en&btnG=Search'
+        url = f'https://scholar.google.com/scholar?q={title2}&ie=UTF-8&oe=UTF-8&hl=en&btnG=Search'
         # if there are NO results, generate a URL for a Google Scholar title search
         df1 = pd.DataFrame({url})
          # make a dataframe with the url
@@ -62,6 +67,8 @@ for i in range(0, len(df)):
     # add the current record's dataframe as a row in the full list
     time.sleep(.15)
     # wait a half second before moving to the next row to accommodate eutil limitation
+    response.close()
+    # close the request
 df2 = df2.reset_index()
 # reset the index for df2
 dfresult = pd.concat([dforig, df2], axis=1)
