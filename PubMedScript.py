@@ -18,57 +18,81 @@ import time
 # webbrowser is useful if you want to open the URLs instead of writing to Excel
 
 dforig = pd.read_excel('N:\Python\ScriptRetrievalList.xlsx', usecols='B:M', header=None)
-# open the Excel file and create a dataframe with columns desired for the final output
-# column choice may need to be changed based on the spreadsheet export from EndNote
 df = pd.read_excel('N:\Python\ScriptRetrievalList.xlsx', usecols='D', header=None)
-# open Excel file and create a dataframe from the article name column
-# column choice may need to be changed based on the spreadsheet export from EndNote
-#df = df.replace(' ','+', regex=True)
-# change all spaces to +
 df2 = pd.DataFrame({})
 # set up an empty dataframe to hold the pmids later
 for i in range(0, len(df)):
 # for every item, starting at index 0 and ending and the last cell, do the following   
     title = df.iloc[i, -1]
+    # assign the title in the current row to a variable
     title = str(title)
+    # change data type to string
     title2 = title.replace(' ','+')
-# assign the title in the current row to a variable
- #   url = f'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&retmode=json&term={title}&field=title&api_key=<NCBI API KEY>'
-# append the title into the esearch API string
-    payload = {'db': 'pubmed', 'retmode':'json', 'field': 'title', 'term': title, 'api_key': '<NCBI API KEY>'}
-    response = requests.get('https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?', params=payload)
-    
-    # response = requests.get(url)
-    # run the API and output the result as JSON using requests package
+    # second variable that replaces spaces in title with +; needed for Google Scholar URLs
+    payload2 = {'query': title, 'email': 'hslill@luc.edu'}
+    # define parameters for unpaywall api
+    response2 = requests.get('https://api.unpaywall.org/v2/search?', params=payload2)
+    # run unpaywall api
+    record2 = response2.json()
+    # get response as json
+    value = record2["results"] 
+    # assign the results list of dictionaries to a variable
+    if len(value) == 0:
+        # if the list is empty
+        status = 'no results'
+        oaurl = 'none'
+    elif len(value) > 1:
+        # if there is more than one result
+        status = 'too many results'
+        oaurl = 'none'
+    else:    
+        value = value[0]
+        # assign the first item in the list to a variable; this changes the type to dict for the next steps
+        status = value.get('response',{}).get('oa_status')
+        # get the oa status and assign it to a variable
+        if (status == 'closed') is True :  
+            oaurl = value.get('response',{}).get('doi_url')
+            # if the status is closed, get the doi url 
+        else:
+            oaurl = value.get('response',{}).get('best_oa_location',{}).get('url')
+            # get the url for the best oa option and assign it to a variable
+    time.sleep(.1)
+ #   response2.close()
+        # close the request
+    payload1 = {'db': 'pubmed', 'retmode':'json', 'field': 'title', 'term': title, 'email':'hslill@luc.edu', 'api_key': '<NCBI API KEY>'}
+    # define parameters for esearch api
+    response = requests.get('https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?', params=payload1)
+    # run esearch api with defined parameters
     record = response.json()
     # get the data from the JSON file as a dictionary
     pmid = record.get('esearchresult',{}).get('idlist')
     # get the pmid list from the dictionary
-    df1 = pd.DataFrame(pmid)
-    # add the pmid list to a dataframe
-    if len(df1.index)>1:
-        url = f'https://scholar.google.com/scholar?q={title2}&ie=UTF-8&oe=UTF-8&hl=en&btnG=Search'
+    if len(pmid)>1:
+        if ((status == 'closed') or (status == 'too many results') or (status == 'no results')) is False:
+            url = oaurl
+        else:
+            url = f'https://scholar.google.com/scholar?q={title2}&ie=UTF-8&oe=UTF-8&hl=en&btnG=Search'
         # if there is more than one record, generate a URL for a Google Scholar title search
         # to use PubMed title search instead, use: f'https://pubmed.ncbi.nlm.nih.gov/?term={title}'
-        df1 = pd.DataFrame({url})
-        # make a dataframe for the url
-    elif df1.empty:
-        url = f'https://scholar.google.com/scholar?q={title2}&ie=UTF-8&oe=UTF-8&hl=en&btnG=Search'
+    elif len(pmid) == 0:
+        if ((status == 'closed') or (status == 'too many results') or (status == 'no results')) is False:
+            url = f'https://scholar.google.com/scholar?q={title2}&ie=UTF-8&oe=UTF-8&hl=en&btnG=Search'
+        else:
+            url = oaurl
         # if there are NO results, generate a URL for a Google Scholar title search
-        df1 = pd.DataFrame({url})
-         # make a dataframe with the url
     else:
-        pmid2 = df1.iloc[0, -1]
-        # get the pmid from the datatable
+        pmid2 = pmid[0]
+        # get the pmid from the list and assign to a variable
         url = f'https://tb2lc4tl2v.search.serialssolutions.com/?V=1.0&sid=Entrez:PubMed&id=pmid:{pmid2}'
-        df1 = pd.DataFrame({url})
-        # create a Serials Solutions search url for the pmid and put it in a dataframe
+        # create a Serials Solutions search url for the pmid 
+    df1 = pd.DataFrame(data = {'OA Status':[status], 'OA URL':[oaurl], 'Holdings URL':[url]})
+    # Create a dataframe with the resulting three variables
     df2 = pd.concat([df2, df1])
     # add the current record's dataframe as a row in the full list
-    time.sleep(.15)
-    # wait a half second before moving to the next row to accommodate eutil limitation
-    response.close()
-    # close the request
+    time.sleep(.1)
+    # wait before moving to the next row to accommodate eutil limitation; this time is reduced because we use an api key
+#    response.close()
+        # close the api request
 df2 = df2.reset_index()
 # reset the index for df2
 dfresult = pd.concat([dforig, df2], axis=1)
@@ -76,4 +100,4 @@ dfresult = pd.concat([dforig, df2], axis=1)
 with pd.ExcelWriter('N:\Python\ScriptRetrievalList.xlsx', mode='a', if_sheet_exists='new') as writer:  
     dfresult.to_excel(writer, sheet_name='Sheet2')
     # write the final dataframe to a new sheet in an Excel file
-    
+
