@@ -14,75 +14,74 @@ import pandas as pd
 import requests
 import json
 import time
-# import webbrowser
-# webbrowser is useful if you want to open the URLs instead of writing to Excel
 
 dforig = pd.read_excel('N:\Python\ScriptRetrievalList.xlsx', header=None)
-df = pd.read_excel('N:\Python\ScriptRetrievalList.xlsx', usecols='D', header=None)
+dftitle = pd.read_excel('N:\Python\ScriptRetrievalList.xlsx', usecols='D', header=None)
+# open the citation spreadsheet; create one dataframe with all desired columns, and another with just the title field
 df2 = pd.DataFrame({})
-# set up an empty dataframe to hold the pmids later
-for i in range(0, len(df)):
+# set up an empty dataframe to hold the urls later
+for i in range(0, len(dftitle)):
 # for every item, starting at index 0 and ending and the last cell, do the following   
-    title = df.iloc[i, -1]
-    # assign the title in the current row to a variable
+    title = dftitle.iloc[i, -1]
+# assign the title in the current row to a variable
     title = str(title)
     # change data type to string
     title2 = title.replace(' ','+')
-    # second variable that replaces spaces in title with +; needed for Google Scholar URLs
-    payload2 = {'id': title}
-    # define parameters for unpaywall api
-    response2 = requests.get('https://api.openaccessbutton.org/find?', params=payload2)
-    # run unpaywall api
-    record2 = response2.json()
-    # get response as json
-    value = record2 
-    # assign the results list of dictionaries to a variable
-    if "url" in value:
-        oaurl = record2["url"]
-    else:
-        oaurl = "none" 
-#    time.sleep(.1)
- #   response2.close()
-        # close the request
-    payload1 = {'db': 'pubmed', 'retmode':'json', 'field': 'title', 'term': title, 'email':'hslill@luc.edu', 'api_key': '<NCBI API KEY>'}
+    # create a second title variable that replaces spaces in title with +; needed for Google Scholar URLs
+    payload = {'db': 'pubmed', 'retmode':'json', 'field': 'title', 'term': title, 'email':'hslill@luc.edu', 'api_key': '<NCBI API KEY>'}
     # define parameters for esearch api
-    response = requests.get('https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?', params=payload1)
-    # run esearch api with defined parameters
+    response = requests.get('https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?', params=payload)
+    # run the API and output the result as JSON using requests package
     record = response.json()
     # get the data from the JSON file as a dictionary
     pmid = record.get('esearchresult',{}).get('idlist')
     # get the pmid list from the dictionary
-    if len(pmid)>1:
-        if (oaurl == 'none') is False:
-            url = oaurl
-        else:
-            url = f'https://scholar.google.com/scholar?q={title2}&ie=UTF-8&oe=UTF-8&hl=en&btnG=Search'
-        # if there is more than one record, generate a URL for a Google Scholar title search
-        # to use PubMed title search instead, use: f'https://pubmed.ncbi.nlm.nih.gov/?term={title}'
-    elif len(pmid) == 0:
-        if (oaurl == 'none') is False:
-            url = oaurl
-        else:
-            url = f'https://scholar.google.com/scholar?q={title2}&ie=UTF-8&oe=UTF-8&hl=en&btnG=Search'
-        # if there are NO results, generate a URL for a Google Scholar title search
+    df1 = pd.DataFrame(pmid)
+    # add the pmid list to a dataframe
+    if len(df1.index)>1:
+        url = f'https://scholar.google.com/scholar?q={title}&ie=UTF-8&oe=UTF-8&hl=en&btnG=Search'
+        # if there is more than one record, generate a URL for a Google Scholar search of the title and set it to the url variable
+    elif df1.empty:
+        url = f'https://scholar.google.com/scholar?q={title}&ie=UTF-8&oe=UTF-8&hl=en&btnG=Search'
+        # if there are no records, generate a URL for a Google Scholar search of the title and set it to the url variable
     else:
-        pmid2 = pmid[0]
-        # get the pmid from the list and assign to a variable
-        url = f'https://tb2lc4tl2v.search.serialssolutions.com/?V=1.0&sid=Entrez:PubMed&id=pmid:{pmid2}'
-        # create a Serials Solutions search url for the pmid 
-    df1 = pd.DataFrame(data = {'OA URL':[oaurl], 'Holdings URL':[url]})
-    # Create a dataframe with the resulting variables
+        pmid2 = df1.iloc[0, -1]
+        # get the pmid from the dataframe
+        libkey = f'https://public-api.thirdiron.com//public/v1/libraries/<library ID>/articles/pmid/{pmid2}?access_token=<LIBKEY API KEY>'
+        # API search string using PMID
+        response = requests.get(libkey)
+        # call the API
+        if response.status_code == requests.codes.ok:
+            # check the status code of the response and proceed if it is ok
+            record = response.json()
+            # get the response json
+            value = record.get('data',{})
+            # add the dictionary for the 'data' element to a variable
+            if value.get('fullTextFile') != '':
+                url = value.get('fullTextFile')
+                # look for the 'fullTextFile' element, which defines a PDF link; if it is not blank, set it to the url variable
+            else:
+                if value.get('contentLocation') != '':
+                    url = value.get('contentLocation')
+                    # if there is no PDF link, look for the 'contentLocation' element, which defines a site where the article is available; if it is not blank, set it to the url variable
+                else:
+                    url = value.get('linkResolverOpenUrl')
+                    # if both content elements are blank, set the link resolver url to the url variable
+        else:
+            url = f'https://tb2lc4tl2v.search.serialssolutions.com/?V=1.0&sid=Entrez:PubMed&id=pmid:{pmid2}'
+            # if the status code of the response is not okay, generate a serials solutions search using the pmid and set it to the url variable
+    df1 = pd.DataFrame({url})
+    # add the url variable for the current article to a dataframe
     df2 = pd.concat([df2, df1])
-    # add the current record's dataframe as a row in the full list
+    # add the current record's dataframe to the full list
     time.sleep(.1)
-    # wait before moving to the next row to accommodate eutil limitation; this time is reduced because we use an api key
-#    response.close()
-        # close the api request
+    # wait before moving to the next row to accommodate esearch rate limiting
 df2 = df2.reset_index()
 # reset the index for df2
-dfresult = pd.concat([dforig, df2], axis=1)
-# append the url column to the larger data extract 
+dfresult = pd.concat([dforig, df2], axis=1).reindex(dforig.index)
+# add the url column to the original data from dforig
 with pd.ExcelWriter('N:\Python\ScriptRetrievalList.xlsx', mode='a', if_sheet_exists='new') as writer:  
-    dfresult.to_excel(writer, sheet_name='Sheet2')
+    dfresult.to_excel(writer, sheet_name='Results')
     # write the final dataframe to a new sheet in an Excel file
-print("done")
+print ("Done")
+
