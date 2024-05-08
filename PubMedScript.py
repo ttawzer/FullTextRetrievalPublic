@@ -26,7 +26,7 @@ for i in range(0, len(dftitle)):
 # assign the title in the current row to a variable
     title = str(title)
     # change data type to string
-    payload = {'db': 'pubmed', 'retmode':'json', 'field': 'title', 'term': title, 'email':'hslill@luc.edu', 'api_key': '<NCBI API KEY>'}
+    payload = {'db': 'pubmed', 'retmode':'json', 'field': 'title', 'term': title, 'email':'hslill@luc.edu'}
     # define parameters for esearch api
     response = requests.get('https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?', params=payload)
     # run the API and output the result as JSON using requests package
@@ -38,7 +38,7 @@ for i in range(0, len(dftitle)):
     # if the length of the pmid list is exactly 1
         pmid2 = pmid[0]
         # get the pmid
-        libkey = f'https://public-api.thirdiron.com//public/v1/libraries/<library ID>/articles/pmid/{pmid2}?access_token=<LIBKEY API KEY>'
+        libkey = f'https://public-api.thirdiron.com//public/v1/libraries/<library ID>/articles/pmid/{pmid2}?access_token='
         # API search string using PMID
         response = requests.get(libkey)
         # call the API
