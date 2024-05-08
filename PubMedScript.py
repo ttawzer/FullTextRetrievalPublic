@@ -31,7 +31,7 @@ for i in range(0, len(df)):
 # for every item, starting at index 0 and ending and the last cell, do the following   
     title = df.iloc[i, -1]
 # assign the title in the current row to a variable
-    url = f'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&retmode=json&term={title}&field=title&api_key=<NCBI API KEY>'
+    url = f'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&retmode=json&term={title}&field=title'
 # append the title into the esearch API string
     response = requests.get(url)
     # run the API and output the result as JSON using requests package
