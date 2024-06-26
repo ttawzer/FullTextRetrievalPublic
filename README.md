@@ -10,6 +10,11 @@ This script opens an Excel file of citation data, uses the NCBI E-utilities [ESe
 
 [NCBI Disclaimer and Copyright Notice](https://www.ncbi.nlm.nih.gov/About/disclaimer.html)
 
+Two scripts using different link resolvers are available. In both cases, the script will need to be edited to reflect the institution's base URL
+PubMedScript.py - 360Link
+AlmaScript.py - Alma/Primo
+
+
 ## Prerequesites 
 The following Python packages will need to be installed:
 - [pandas](https://pandas.pydata.org/docs/getting_started/install.html)
